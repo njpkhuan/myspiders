@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import linecache
-import shutil
 import sys
 import urllib
 from urllib import request
