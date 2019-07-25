@@ -4,11 +4,12 @@
 import requests
 from hashlib import md5
 
+
 class Chaojiying_Client(object):
 
     def __init__(self, username, password, soft_id):
         self.username = username
-        password =  password.encode('utf8')
+        password = password.encode('utf8')
         self.password = md5(password).hexdigest()
         self.soft_id = soft_id
         self.base_params = {
@@ -31,7 +32,8 @@ class Chaojiying_Client(object):
         }
         params.update(self.base_params)
         files = {'userfile': ('1.jpg', im)}
-        r = requests.post('http://upload.chaojiying.net/Upload/Processing.php', data=params, files=files, headers=self.headers)
+        r = requests.post('http://upload.chaojiying.net/Upload/Processing.php', data=params, files=files,
+                          headers=self.headers)
         return r.json()
 
     def ReportError(self, im_id):
@@ -47,11 +49,10 @@ class Chaojiying_Client(object):
 
 
 if __name__ == '__main__':
-    chaojiying = Chaojiying_Client('njpkhuan', 'huan9420', '899120')
-    im = open('F:\pyspace\myspiders\myspiders\capt\\3.jpg', 'rb').read()
+    chaojiying = Chaojiying_Client('njpkhuan', 'l9*P2&7UzRRs', '899120')
+    im = open('../result/a.png', 'rb').read()
     res = chaojiying.PostPic(im, 1902)
-    if res.get("err_no")==0:
+    if res.get("err_no") == 0:
         print(res)
 
-    print (	)
 

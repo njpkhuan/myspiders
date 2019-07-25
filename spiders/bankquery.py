@@ -8,23 +8,25 @@ import scrapy
 
 from myspiders.spiders.chaojiying import Chaojiying_Client
 
+from myspiders.spiders.VerifyCodeRecognition import VerifyCodeRecognition
+
 
 class BankquerySpider(scrapy.Spider):
     name = 'bankquery'
     allowed_domains = ['hebbank.com']
     start_urls = ['https://www.hebbank.com/corporbank/otherBankQueryWeb.do', ]
     # 文件地址
-    success_path = "result\\banks.txt"
-    error_path = "result\errors.txt"
-    error_path_2 = "result\errors2.txt"
-    code_path = "result\\a.png"
-    source_path = "result\city.txt"
+    success_path = "../result/banks.txt"
+    error_path = "../result/errors.txt"
+    error_path_2 = "../result/errors2.txt"
+    code_path = "../result/a.png"
+    source_path = "../result/city.txt"
 
     def start_requests(self):
         yield Request("https://www.hebbank.com/corporbank/otherBankQueryWeb.do",
                       meta={'cookiejar': 1, "current_line": 1},
                       dont_filter=True,
-                      callback=self.parse2)
+                      callback=self.parse3)
 
     def parse(self, response):
         # 读取最大行数
@@ -57,16 +59,17 @@ class BankquerySpider(scrapy.Spider):
         res = urllib.request.urlretrieve(url, filename=self.code_path)
         # 获取验证码session地址
         new_session = res[1]['Set-Cookie'].split(';')[0]
-        # 解析验证码:用第三方工具"超级鹰"
-        chaojiying = Chaojiying_Client('njpkhuan', 'huan9420', '899120')
-        # 读取验证码本地地址
-        im = open(self.code_path, 'rb').read()
-        # 解析验证码并接收结果
-        res = chaojiying.PostPic(im, 1902)
+        # # 解析验证码:用第三方工具"超级鹰"
+        # chaojiying = Chaojiying_Client('njpkhuan', 'huan9420', '899120')
+        # # 读取验证码本地地址
+        # im = open(self.code_path, 'rb').read()
+        # # 解析验证码并接收结果
+        # res = chaojiying.PostPic(im, 1902)
+        # 使用百度OCR文本识别
+        v = VerifyCodeRecognition()
+        captcha_value = v.recognize_image()
         # 判断验证码是否解析成功
-        if res.get("err_no") == 0:
-            # 获取解析结果
-            captcha_value = res.get("pic_str")
+        if captcha_value is not None:
             # 拼凑查询承兑行验证码
             url = "https://www.hebbank.com/corporbank/webBankQueryAjax.do?checkCode=" + captcha_value + "&bankType=" + bankType + "&cityCode=" + cityCode
             # 打印URL
@@ -95,7 +98,7 @@ class BankquerySpider(scrapy.Spider):
             yield Request("https://www.hebbank.com/corporbank/otherBankQueryWeb.do",
                           meta={'cookiejar': 1, "current_line": current_line},
                           dont_filter=True,
-                          callback=self.parse)
+                          callback=self.parse3)
 
     # 解析查询结果
     def parse_page(self, response):
@@ -210,15 +213,17 @@ class BankquerySpider(scrapy.Spider):
         # 获取验证码session地址
         new_session = res[1]['Set-Cookie'].split(';')[0]
         # 解析验证码:用第三方工具"超级鹰"
-        chaojiying = Chaojiying_Client('njpkhuan', 'huan9420', '899120')
+        # chaojiying = Chaojiying_Client('njpkhuan', 'l9*P2&7UzRRs', '899120')
         # 读取验证码本地地址
-        im = open(self.code_path, 'rb').read()
+        # im = open(self.code_path, 'rb').read()
         # 解析验证码并接收结果
-        res = chaojiying.PostPic(im, 1902)
+        # res = chaojiying.PostPic(im, 1902)
+
+        # 使用百度OCR文本识别
+        v = VerifyCodeRecognition()
+        captcha_value = v.recognize_image()
         # 判断验证码是否解析成功
-        if res.get("err_no") == 0:
-            # 获取解析结果
-            captcha_value = res.get("pic_str")
+        if captcha_value is not None:
             # 拼凑查询承兑行验证码
             url = "https://www.hebbank.com/corporbank/webBankQueryAjax.do?checkCode=" + captcha_value + "&bankType=" + bankType + "&cityCode=" + cityCode
             # 打印URL
