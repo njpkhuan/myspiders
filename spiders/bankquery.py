@@ -105,7 +105,8 @@ class BankquerySpider(scrapy.Spider):
         # 接收当前行号
         current_line = response.meta['current_line']
         # 获取承兑行信息
-        bankInfo = response.xpath("//*[@id='bankName']/@value").extract()
+        bankInfo = response.xpath("//*[@id='null']").extract()
+
         # 判断数据是否存在
         if bankInfo:
             # 打开输出文件
@@ -116,7 +117,11 @@ class BankquerySpider(scrapy.Spider):
             content.write(("num:" + pos + "\r\n").encode("utf-8"))
             # 将查询到的数据写入到文件中
             for b in bankInfo:
-                content.write((b + "\r\n").encode("utf-8"))
+                c = str(b)
+                # 支付联行号
+                bankNo = c[c.index('value="', c.index('unionBankNo'))+7:c.index('"/', c.index('unionBankNo'))]
+                bankName = c[c.index('value="', c.index('bankName')) + 7:c.index('"/', c.index('bankName'))]
+                content.write((bankNo+"\t"+bankName + "\r\n").encode("utf-8"))
         else:
             # 获取当前行数据
             position = linecache.getline(self.source_path, current_line - 1)
@@ -260,7 +265,7 @@ class BankquerySpider(scrapy.Spider):
         # 接收当前行号
         current_line = response.meta['current_line']
         # 获取承兑行信息
-        bankInfo = response.xpath("//*[@id='bankName']/@value").extract()
+        bankInfo = response.xpath("//*[@id='null']").extract()
         # 判断数据是否存在
         if bankInfo:
             # 打开输出文件
@@ -271,7 +276,11 @@ class BankquerySpider(scrapy.Spider):
             content.write(("num:" + pos + "\r\n").encode("utf-8"))
             # 将查询到的数据写入到文件中
             for b in bankInfo:
-                content.write((b + "\r\n").encode("utf-8"))
+                c = str(b)
+                # 支付联行号
+                bankNo = c[c.index('value="', c.index('unionBankNo')) + 7:c.index('"/', c.index('unionBankNo'))]
+                bankName = c[c.index('value="', c.index('bankName')) + 7:c.index('"/', c.index('bankName'))]
+                content.write((bankNo + "\t" + bankName + "\r\n").encode("utf-8"))
         else:
             # 获取当前行数据
             position = linecache.getline(self.error_path, current_line - 1)
